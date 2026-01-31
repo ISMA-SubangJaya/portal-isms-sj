@@ -7,7 +7,7 @@
     <!-- React & Babel CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -41,7 +41,7 @@
         const COMMUNITY_PASSCODE = "ISMA-SJ-2026"; 
         const LOGO_URL ="https://i.imgur.com/PweAKvQ.png"; 
 
-        // Komponen Ikon SVG Manual (Untuk kestabilan maksimum)
+        // Komponen Ikon SVG Manual
         const Icon = ({ name, size = 20, className = "" }) => {
             const paths = {
                 plus: <path d="M5 12h14m-7-7v14"/>,
@@ -61,7 +61,9 @@
                 chart: <React.Fragment><path d="M3 3v18h18M7 16v-4M11 16V9M15 16V5M19 16v-7"/></React.Fragment>,
                 whatsapp: <React.Fragment><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .004 5.408 0 12.046c0 2.121.554 4.191 1.605 6.012L0 24l6.117-1.605a11.847 11.847 0 005.933 1.57h.005c6.632 0 12.042-5.41 12.046-12.048a11.83 11.83 0 00-3.53-8.517"/></React.Fragment>,
                 share: <React.Fragment><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></React.Fragment>,
-                external: <React.Fragment><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></React.Fragment>
+                external: <React.Fragment><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></React.Fragment>,
+                trash: <React.Fragment><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></React.Fragment>,
+                ticket: <React.Fragment><path d="M2 9V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 0 0 4v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a2 2 0 0 0 0-4Z"/><path d="M15 3v18"/></React.Fragment>
             };
             const path = paths[name];
             if (!path) return null;
@@ -81,7 +83,19 @@
             const [loading, setLoading] = useState(false);
             const [submitStatus, setSubmitStatus] = useState(null);
             const [imagePreviews, setImagePreviews] = useState([]); 
-            const [formData, setFormData] = useState({ jenis: 'Laporan', namaAhli: '', tajukAktiviti: '', tarikh: '', lokasi: '', deskripsi: '', whatsapp: '', gambarData: [], passcode: '' });
+            
+            // State Borang
+            const [formData, setFormData] = useState({ 
+                jenis: 'Laporan', 
+                namaAhli: '', 
+                tajukAktiviti: '', 
+                tarikh: '', 
+                lokasi: '', 
+                deskripsi: '', 
+                whatsapp: '', 
+                gambarData: [], 
+                passcode: '' 
+            });
 
             const formatDisplayDate = useCallback((dateStr) => {
                 if (!dateStr) return "";
@@ -114,32 +128,61 @@
 
             useEffect(() => { fetchActivities(); }, []);
 
+            const handleInputChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({ ...prev, [name]: value }));
+            };
+
             const handleFileChange = (e, targetJenis = 'Laporan') => {
                 const files = Array.from(e.target.files);
                 const maxFiles = targetJenis === 'Promosi' ? 1 : 5;
-                if (formData.gambarData.length + files.length > maxFiles) {
+                const currentImages = formData.jenis === targetJenis ? formData.gambarData : [];
+
+                if (currentImages.length + files.length > maxFiles) {
                     alert(`Maksimum ${maxFiles} gambar dibenarkan.`);
                     return;
                 }
+
                 files.forEach(file => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
                         const base64 = reader.result.split(',')[1];
                         setImagePreviews(prev => [...prev, reader.result]);
-                        setFormData(prev => ({ ...prev, gambarData: [...prev.gambarData, { base64, fileName: file.name }] }));
+                        setFormData(prev => ({ 
+                            ...prev, 
+                            jenis: targetJenis,
+                            gambarData: [...prev.gambarData, { base64, fileName: file.name }] 
+                        }));
                     };
                     reader.readAsDataURL(file);
                 });
             };
 
-            const handleSubmit = async (e, directData = null) => {
+            const removeImage = (index) => {
+                setImagePreviews(prev => prev.filter((_, i) => i !== index));
+                setFormData(prev => ({
+                    ...prev,
+                    gambarData: prev.gambarData.filter((_, i) => i !== index)
+                }));
+            };
+
+            const handleSubmit = async (e, targetJenis = 'Laporan') => {
                 if (e) e.preventDefault();
-                const data = directData || formData;
-                if (data.passcode !== COMMUNITY_PASSCODE) { setSubmitStatus('wrong_passcode'); return; }
-                if (data.gambarData.length === 0) { alert("Sila muat naik sekurang-kurangnya satu gambar."); return; }
-                setLoading(true); setSubmitStatus('sending');
+                if (formData.passcode !== COMMUNITY_PASSCODE) { 
+                    setSubmitStatus('wrong_passcode'); 
+                    return; 
+                }
+                if (formData.gambarData.length === 0) { 
+                    alert("Sila muat naik sekurang-kurangnya satu gambar."); 
+                    return; 
+                }
+
+                setLoading(true); 
+                setSubmitStatus('sending');
+                const dataToSubmit = { ...formData, jenis: targetJenis };
+
                 try {
-                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
+                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(dataToSubmit), mode: 'no-cors' });
                     setSubmitStatus('success');
                     setFormData({ jenis: 'Laporan', namaAhli: '', tajukAktiviti: '', tarikh: '', lokasi: '', deskripsi: '', whatsapp: '', gambarData: [], passcode: '' });
                     setImagePreviews([]);
@@ -149,7 +192,7 @@
 
             const pastActivities = useMemo(() => activities.filter(a => a.jenis === 'Laporan' || !a.jenis), [activities]);
             const upcomingPromos = useMemo(() => activities.filter(a => a.jenis === 'Promosi'), [activities]);
-            const uniqueMembers = useMemo(() => new Set(pastActivities.map(a => a.namaAhli)).size, [pastActivities]);
+            const uniqueMembers = new Set(pastActivities.map(a => a.namaAhli)).size;
 
             return (
                 <div className="flex flex-col min-h-screen fade-in text-left">
@@ -158,8 +201,8 @@
                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('feed')}>
                             <img src={LOGO_URL} className="w-12 h-12 object-contain" alt="Logo" />
                             <div className="flex flex-col text-left leading-none">
-                                <span className="font-black text-teal-800 text-lg uppercase tracking-tight leading-none">ISMA</span>
-                                <span className="text-[8px] font-bold text-teal-600 uppercase tracking-widest mt-1 leading-none">Subang Jaya</span>
+                                <span className="font-black text-teal-800 text-lg uppercase tracking-tight leading-none text-left">ISMA</span>
+                                <span className="text-[8px] font-bold text-teal-600 uppercase tracking-widest mt-1 leading-none text-left">Subang Jaya</span>
                             </div>
                         </div>
                         <div className="hidden md:flex gap-2">
@@ -186,8 +229,8 @@
                     <main className="max-w-6xl mx-auto w-full p-6 flex-grow">
                         {/* HEADER */}
                         <div className="text-center mb-16 md:mb-24 py-10">
-                            <h1 className="text-4xl md:text-7xl font-black text-slate-800 tracking-tighter mb-6 leading-tight">Portal Aktiviti Komuniti <br/><span className="text-teal-700 text-center">ISMA Subang Jaya</span></h1>
-                            <p className="text-slate-500 max-w-2xl mx-auto text-base italic font-medium">"Merapatkan ukhuwah, mendokumentasikan khidmat bakti, dan memberi inspirasi kepada komuniti setempat."</p>
+                            <h1 className="text-4xl md:text-7xl font-black text-slate-800 tracking-tighter mb-6 leading-tight text-center">Portal Aktiviti Komuniti <br/><span className="text-teal-700 text-center">ISMA Subang Jaya</span></h1>
+                            <p className="text-slate-500 max-w-2xl mx-auto text-base italic font-medium text-center px-2">"Merapatkan ukhuwah, mendokumentasikan khidmat bakti, dan memberi inspirasi kepada komuniti setempat."</p>
                         </div>
 
                         {/* VIEW: FEED */}
@@ -196,46 +239,65 @@
                                 <section>
                                     <div className="flex justify-between items-center mb-10 border-b-4 border-teal-600/10 pb-4">
                                         <div className="flex flex-col text-left">
-                                            <h2 className="text-xl md:text-2xl font-black text-slate-800 uppercase flex items-center gap-3"><Icon name="grid" className="text-teal-600" /> Papan Inspirasi</h2>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">8 Aktiviti Terkini Di Atas</span>
+                                            <h2 className="text-xl md:text-2xl font-black text-slate-800 uppercase flex items-center gap-3 text-left"><Icon name="grid" className="text-teal-600" /> Papan Inspirasi</h2>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 text-left">Aktiviti Terkini Ahli Bersama Komuniti</span>
                                         </div>
                                         <button onClick={fetchActivities} className="p-3 bg-white border border-slate-200 rounded-2xl text-teal-700 hover:bg-teal-50 shadow-sm transition-colors">
                                             <Icon name="refresh" size={16} className={fetching ? "animate-spin" : ""} />
                                         </button>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                                        {pastActivities.slice(0, 8).map((act, i) => (
-                                            <div key={i} onClick={() => setSelectedActivity(act)} className="bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all cursor-pointer group text-left">
-                                                <div className="h-48 relative overflow-hidden bg-slate-50">
+                                    {/* GRID DIUBAH KEPADA lg:grid-cols-3 UNTUK KAD YANG LEBIH BESAR */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 text-left">
+                                        {pastActivities.slice(0, 9).map((act, i) => (
+                                            <div key={i} onClick={() => setSelectedActivity(act)} className="bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer group text-left">
+                                                {/* TINGGI GAMBAR DINAIKKAN KE h-64 */}
+                                                <div className="h-64 relative overflow-hidden bg-slate-50 text-left">
                                                     <img src={processSingleDriveUrl(act.gambarUrl?.split(',')[0])} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="" />
-                                                    <div className="absolute bottom-3 right-3 bg-teal-700/90 backdrop-blur-md text-white px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg leading-none">
-                                                        <Icon name="calendar" size={10}/> {formatDisplayDate(act.tarikh)}
+                                                    <div className="absolute bottom-4 right-4 bg-teal-700/90 backdrop-blur-md text-white px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                                                        <Icon name="calendar" size={12}/> {formatDisplayDate(act.tarikh)}
                                                     </div>
                                                 </div>
-                                                <div className="p-6">
-                                                    <h3 className="text-sm font-black text-slate-800 mb-2 leading-tight group-hover:text-teal-700 transition-colors line-clamp-2 uppercase leading-none">{act.tajukAktiviti}</h3>
-                                                    <p className="text-slate-500 text-[10px] italic line-clamp-2 font-medium">"{act.deskripsi}"</p>
+                                                <div className="p-8 text-left">
+                                                    <h3 className="text-lg font-black text-slate-800 mb-3 leading-tight group-hover:text-teal-700 transition-colors line-clamp-2 uppercase leading-none text-left">{act.tajukAktiviti}</h3>
+                                                    <p className="text-slate-500 text-xs italic line-clamp-3 font-medium text-left leading-relaxed">"{act.deskripsi}"</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 </section>
 
-                                <section className="bg-teal-900/5 -mx-4 px-4 py-20 rounded-[3rem] md:rounded-[6rem] text-center">
-                                    <h2 className="text-3xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter mb-16 leading-none">Aktiviti Akan Datang</h2>
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-5xl mx-auto px-2 text-left">
-                                        {upcomingPromos.slice(0, 5).map((promo, i) => (
-                                            <div key={i} className="bg-white p-8 md:p-10 rounded-[3.5rem] shadow-xl border border-teal-50 flex flex-col md:flex-row gap-8 items-center text-left">
-                                                <div className="flex-1 space-y-5">
-                                                    <div className="flex items-center gap-2 text-[10px] font-black text-teal-600 uppercase tracking-widest leading-none"><Icon name="calendar" size={14}/> {formatDisplayDate(promo.tarikh)}</div>
-                                                    <h3 className="text-2xl font-black text-slate-800 leading-tight uppercase text-left leading-none">{promo.tajukAktiviti}</h3>
-                                                    <p className="text-slate-500 text-sm leading-relaxed line-clamp-3 font-medium italic">"{promo.deskripsi}"</p>
-                                                    <div className="flex gap-3 pt-4">
-                                                        {promo.whatsapp && <a href={`https://wa.me/${promo.whatsapp}`} target="_blank" className="flex-1 bg-green-600 text-white p-4 rounded-xl flex items-center justify-center gap-2 font-black text-xs uppercase shadow-md leading-none"><Icon name="whatsapp" size={18}/> WhatsApp</a>}
-                                                        <button onClick={() => setSelectedActivity(promo)} className="p-4 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors"><Icon name="info" size={18}/></button>
+                                {/* SEKSYEN PROMOSI (SQUARE TILES) */}
+                                <section className="bg-teal-900/5 -mx-4 px-4 py-16 md:py-24 rounded-[3rem] md:rounded-[6rem] text-center">
+                                    <div className="mb-12">
+                                        <div className="bg-teal-700 text-white px-5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-4 inline-block shadow-lg">Sertai Kami</div>
+                                        <h2 className="text-3xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter text-center leading-none">Aktiviti Akan Datang</h2>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 max-w-6xl mx-auto px-2 text-left">
+                                        {upcomingPromos.slice(0, 10).map((promo, i) => (
+                                            <div key={i} className="bg-white rounded-[2rem] overflow-hidden border border-teal-50 shadow-md flex flex-col hover:scale-[1.03] transition-all group relative">
+                                                <div className="aspect-square bg-slate-100 relative overflow-hidden border-b border-teal-50 cursor-pointer" onClick={() => setSelectedActivity(promo)}>
+                                                    <img src={processSingleDriveUrl(promo.gambarUrl)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Poster" />
+                                                    <div className="absolute top-2 left-2 bg-teal-600 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm">Promosi</div>
+                                                </div>
+                                                <div className="p-4 flex flex-col flex-grow text-left">
+                                                    <div className="flex items-center gap-1.5 text-[8px] font-black text-teal-600 uppercase tracking-widest mb-1.5 leading-none">
+                                                        <Icon name="calendar" size={10}/> {formatDisplayDate(promo.tarikh)}
+                                                    </div>
+                                                    <h3 className="text-[10px] md:text-xs font-black text-slate-800 leading-tight uppercase line-clamp-2 mb-3 min-h-[2rem] text-left">
+                                                        {promo.tajukAktiviti}
+                                                    </h3>
+                                                    <div className="mt-auto flex gap-1.5">
+                                                        {promo.whatsapp && (
+                                                            <a href={`https://wa.me/${promo.whatsapp}`} target="_blank" className="flex-1 bg-green-600 text-white p-2.5 rounded-xl flex items-center justify-center gap-1.5 font-black text-[8px] uppercase shadow-sm active:scale-95 transition-all">
+                                                                <Icon name="whatsapp" size={12}/> Info
+                                                            </a>
+                                                        )}
+                                                        <button onClick={() => setSelectedActivity(promo)} className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors">
+                                                            <Icon name="info" size={12}/>
+                                                        </button>
                                                     </div>
                                                 </div>
-                                                {promo.gambarUrl && <div className="shrink-0 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 shadow-inner"><img src={processSingleDriveUrl(promo.gambarUrl)} className="w-24 h-24 md:w-32 md:h-32 object-contain" /><span className="text-[8px] font-black text-slate-400 uppercase mt-2 block text-center leading-none">Scan Maklumat</span></div>}
                                             </div>
                                         ))}
                                     </div>
@@ -245,64 +307,88 @@
 
                         {/* VIEW: SHARE */}
                         {view === 'share' && (
-                            <div className="max-w-2xl mx-auto space-y-10 animate-in slide-in-from-bottom text-left">
-                                <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-teal-50">
+                            <div className="max-w-2xl mx-auto space-y-16 animate-in slide-in-from-bottom text-left px-2">
+                                <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-teal-50 text-left">
                                     <div className="bg-teal-700 p-10 text-white text-center">
-                                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white leading-none">Hantar Laporan</h2>
+                                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white text-center leading-none">Hantar Laporan</h2>
+                                        <p className="opacity-70 text-[10px] mt-2 font-bold uppercase text-white text-center tracking-[0.2em]">Ahli ISMA Subang Jaya</p>
                                     </div>
-                                    <form onSubmit={(e) => handleSubmit(e, {...formData, jenis: 'Laporan'})} className="p-8 md:p-12 space-y-6">
-                                        {submitStatus === 'success' && <div className="bg-teal-50 text-teal-800 p-5 rounded-2xl flex items-center gap-4"><Icon name="check" className="text-teal-600" /> <span className="text-xs font-black uppercase tracking-widest leading-none">Berjaya Dihantar!</span></div>}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <input name="namaAhli" required value={formData.namaAhli} onChange={(e) => setFormData({...formData, namaAhli: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Nama Anda" />
-                                            <input type="date" name="tarikh" required value={formData.tarikh} onChange={(e) => setFormData({...formData, tarikh: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" />
+                                    <form onSubmit={(e) => handleSubmit(e, 'Laporan')} className="p-8 md:p-12 space-y-6 text-left">
+                                        {submitStatus === 'success' && <div className="bg-teal-50 text-teal-800 p-5 rounded-2xl flex items-center gap-4"><Icon name="check" className="text-teal-600" /> <span className="text-xs font-black uppercase tracking-widest">Berjaya!</span></div>}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                                            <input name="namaAhli" required value={formData.namaAhli} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Nama Anda" />
+                                            <input type="date" name="tarikh" required value={formData.tarikh} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" />
                                         </div>
-                                        <input name="tajukAktiviti" required value={formData.tajukAktiviti} onChange={(e) => setFormData({...formData, tajukAktiviti: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Tajuk Aktiviti" />
-                                        <textarea name="deskripsi" required rows="4" value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Ringkasan..."></textarea>
-                                        <div className="space-y-4">
-                                            <div className="flex flex-wrap gap-2">
-                                                {imagePreviews.map((src, i) => (
-                                                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-white shadow-md">
+                                        <input name="tajukAktiviti" required value={formData.tajukAktiviti} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Tajuk Aktiviti" />
+                                        <textarea name="deskripsi" required rows="4" value={formData.deskripsi} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Ringkasan..."></textarea>
+                                        
+                                        <div className="space-y-4 text-left">
+                                            <div className="flex flex-wrap gap-2 text-left">
+                                                {formData.jenis === 'Laporan' && imagePreviews.map((src, i) => (
+                                                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-white shadow-md text-left">
                                                         <img src={src} className="w-full h-full object-cover" />
-                                                        <button type="button" onClick={() => {
-                                                            setImagePreviews(p => p.filter((_, idx) => idx !== i));
-                                                            setFormData(p => ({...p, gambarData: p.gambarData.filter((_, idx) => idx !== i)}));
-                                                        }} className="absolute top-1 right-1 p-0.5 bg-rose-500 text-white rounded"><Icon name="x" size={10}/></button>
+                                                        <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 p-0.5 bg-rose-500 text-white rounded"><Icon name="x" size={10}/></button>
                                                     </div>
                                                 ))}
                                             </div>
-                                            {imagePreviews.length < 5 && (
+                                            {(formData.jenis === 'Laporan' || formData.gambarData.length === 0) && imagePreviews.length < 5 && (
                                                 <div className="relative border-2 border-dashed border-teal-100 rounded-[2.5rem] p-10 text-center bg-slate-50 hover:bg-teal-50 cursor-pointer transition-colors">
                                                     <input type="file" accept="image/*" multiple onChange={(e) => handleFileChange(e, 'Laporan')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                                    <Icon name="upload" className="mx-auto mb-2 text-teal-600" size={24} />
-                                                    <span className="text-[10px] font-black uppercase text-slate-400 leading-none">Tambah Gambar ({imagePreviews.length}/5)</span>
+                                                    <Icon name="upload" className="mx-auto mb-2 text-teal-600 text-center" size={24} />
+                                                    <span className="text-[10px] font-black uppercase text-slate-400 text-center block font-sans">Tambah Laporan ({formData.jenis === 'Laporan' ? imagePreviews.length : 0}/5)</span>
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="p-6 bg-teal-50 rounded-2xl border border-teal-100 text-left">
-                                            <input type="password" required value={formData.passcode} onChange={(e) => setFormData({...formData, passcode: e.target.value})} className="w-full p-4 bg-white rounded-xl text-center font-black outline-none border-none shadow-inner" placeholder="KOD RAHSIA" />
+                                        <div className="p-6 bg-teal-50 rounded-2xl border border-teal-100">
+                                            <input type="password" required name="passcode" value={formData.passcode} onChange={handleInputChange} className="w-full p-4 bg-white rounded-xl text-center font-black outline-none shadow-inner" placeholder="KOD RAHSIA" />
                                         </div>
-                                        <button disabled={loading} className="w-full bg-teal-700 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl leading-none">
+                                        <button disabled={loading} className="w-full bg-teal-700 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl">
                                             {loading ? "Menghantar..." : "Hantar Laporan"}
+                                        </button>
+                                    </form>
+                                </div>
+
+                                {/* BORANG PROMOSI */}
+                                <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 text-left">
+                                    <div className="p-10 text-white flex items-center gap-4 text-left border-b border-white/5">
+                                        <div className="p-3 bg-teal-500 rounded-2xl shadow-xl shadow-teal-500/20"><Icon name="ticket" size={24}/></div>
+                                        <div className="text-left">
+                                            <h2 className="text-2xl font-black uppercase text-white m-0 text-left leading-none">Tambah Promosi</h2>
+                                            <p className="text-teal-400 text-[8px] font-bold uppercase tracking-widest mt-1.5 m-0 text-left">Admin Cawangan</p>
+                                        </div>
+                                    </div>
+                                    <form onSubmit={(e) => handleSubmit(e, 'Promosi')} className="p-8 md:p-12 space-y-6 text-left">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                                            <input name="tajukAktiviti" required value={formData.jenis === 'Promosi' ? formData.tajukAktiviti : ''} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none" placeholder="Nama Program" />
+                                            <input name="tarikh" required value={formData.jenis === 'Promosi' ? formData.tarikh : ''} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none" placeholder="Tarikh" />
+                                        </div>
+                                        <textarea name="deskripsi" required rows="3" value={formData.jenis === 'Promosi' ? formData.deskripsi : ''} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none" placeholder="Butiran..."></textarea>
+                                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                                            <input type="password" required name="passcode" value={formData.passcode} onChange={handleInputChange} className="w-full p-4 bg-white text-slate-900 rounded-xl text-center font-black outline-none shadow-inner" placeholder="KOD KOMUNITI" />
+                                        </div>
+                                        <button disabled={loading} className="w-full bg-teal-500 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl">
+                                            {loading ? "Menghantar..." : "Terbitkan Promosi"}
                                         </button>
                                     </form>
                                 </div>
                             </div>
                         )}
 
+                        {/* VIEW: DASHBOARD */}
                         {view === 'admin' && (
-                            <div className="space-y-12 py-10 text-left">
+                            <div className="space-y-12 py-10 text-left animate-in slide-in-from-bottom text-left">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                                     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm">
                                         <Icon name="chart" size={32} className="text-teal-600"/>
                                         <div className="text-left leading-none">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none text-left">Jumlah Aktiviti</p>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-left">Jumlah Aktiviti</p>
                                             <p className="text-4xl font-black text-slate-800 leading-none text-left">{pastActivities.length}</p>
                                         </div>
                                     </div>
                                     <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm">
                                         <Icon name="users" size={32} className="text-blue-600"/>
                                         <div className="text-left leading-none">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none text-left">Ahli Melapor</p>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-left">Ahli Melapor</p>
                                             <p className="text-4xl font-black text-slate-800 leading-none text-left">{uniqueMembers}</p>
                                         </div>
                                     </div>
@@ -310,14 +396,27 @@
                                 <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden max-w-5xl mx-auto shadow-sm">
                                     <div className="overflow-x-auto text-left">
                                         <table className="w-full text-left">
-                                            <thead className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none text-left">
-                                                <tr><th className="p-6 text-left">Tarikh</th><th className="p-6 text-left">Tajuk Aktiviti</th><th className="p-6 text-center">Status</th></tr>
+                                            <thead className="bg-slate-50/50">
+                                                <tr>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Tarikh</th>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Ahli / Jenis</th>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Tajuk Aktiviti</th>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                                </tr>
                                             </thead>
-                                            <tbody className="divide-y text-sm text-left">
+                                            <tbody className="divide-y text-sm">
                                                 {activities.map((act, idx) => (
                                                     <tr key={idx} className="hover:bg-teal-50/20 text-left transition-colors">
-                                                        <td className="p-6 text-slate-400 font-bold whitespace-nowrap text-left">{formatDisplayDate(act.tarikh)}</td>
-                                                        <td className="p-6 text-slate-600 font-medium uppercase text-left">{act.tajukAktiviti}</td>
+                                                        <td className="p-6 text-slate-400 font-bold whitespace-nowrap">{formatDisplayDate(act.tarikh)}</td>
+                                                        <td className="p-6">
+                                                            <div className="flex flex-col">
+                                                                <span className="font-black text-slate-800 uppercase leading-none">{act.namaAhli || "ADMIN"}</span>
+                                                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full w-max mt-1 uppercase ${act.jenis === 'Promosi' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
+                                                                    {act.jenis || 'Laporan'}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-6 text-slate-600 font-medium uppercase">{act.tajukAktiviti}</td>
                                                         <td className="p-6 text-center leading-none"><span className="bg-teal-50 text-teal-700 text-[9px] font-black px-3 py-1 rounded-full border border-teal-100 uppercase">DIARKIB</span></td>
                                                     </tr>
                                                 ))}
@@ -332,13 +431,8 @@
                     {/* FOOTER */}
                     <footer className="bg-slate-900 py-24 border-t border-slate-800 text-center text-white mt-auto">
                         <div className="max-w-6xl mx-auto px-4 text-center">
-                            <Icon name="users" className="text-teal-400 mx-auto mb-10" size={40}/>
-                            <div className="mb-12 max-w-2xl mx-auto text-center">
-                                <h3 className="text-white font-black text-xl uppercase tracking-tighter mb-4 text-center leading-none">Sertai Keluarga ISMA Subang Jaya</h3>
-                                <p className="text-slate-400 text-sm md:text-base mb-8 font-medium text-center">Daftar sebagai ahli dan berpeluang mendapat diskaun program serta aktiviti akan datang.</p>
-                                <a href="https://ahli.isma.my" target="_blank" className="inline-flex items-center gap-3 bg-teal-600 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-teal-500 shadow-xl group leading-none text-center"><Icon name="userPlus" size={18} /> Daftar di ahli.isma.my <Icon name="external" size={14} className="opacity-50" /></a>
-                            </div>
-                            <p className="text-white font-black text-2xl uppercase tracking-tighter mb-2 mt-14 text-center">ISMA Subang Jaya</p>
+                            <Icon name="users" className="text-teal-400 mx-auto mb-10 text-center" size={40}/>
+                            <p className="text-white font-black text-2xl uppercase tracking-tighter mb-2 mt-14 text-center leading-none">ISMA Subang Jaya</p>
                             <p className="text-[10px] uppercase tracking-[0.6em] text-slate-500 font-black text-center leading-none">Membangun Ummah, Memperkukuh Komuniti</p>
                             <p className="text-[11px] text-slate-600 font-black tracking-[0.3em] uppercase mt-10 opacity-50 text-center">© 2026 Portal Komuniti Cawangan Subang Jaya</p>
                         </div>
@@ -346,8 +440,8 @@
 
                     {/* MODAL DETAIL */}
                     {selectedActivity && (
-                        <div className="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedActivity(null)}>
-                            <div className="bg-white rounded-[2rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+                        <div className="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4 text-left" onClick={() => setSelectedActivity(null)}>
+                            <div className="bg-white rounded-[2rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in duration-300 text-left" onClick={e => e.stopPropagation()}>
                                 <div className="md:w-1/2 h-64 md:h-auto bg-slate-100 relative">
                                     <div className="flex h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar">
                                         {(selectedActivity.gambarUrl || "").split(',').map((url, i) => (
@@ -356,10 +450,12 @@
                                     </div>
                                     <button onClick={() => setSelectedActivity(null)} className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"><Icon name="x" size={20}/></button>
                                 </div>
-                                <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto text-left flex flex-col text-left">
-                                    <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg mb-4 inline-block w-max bg-teal-50 text-teal-700">Inspirasi Komuniti</span>
+                                <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto text-left flex flex-col">
+                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg mb-4 inline-block w-max ${selectedActivity.jenis === 'Promosi' ? 'bg-blue-50 text-blue-700' : 'bg-teal-50 text-teal-700'}`}>
+                                        {selectedActivity.jenis === 'Promosi' ? 'Aktiviti Akan Datang' : 'Inspirasi Komuniti'}
+                                    </span>
                                     <h2 className="text-2xl font-black leading-tight text-slate-800 mb-6 text-left leading-none uppercase">{selectedActivity.tajukAktiviti}</h2>
-                                    <div className="flex-grow bg-slate-50 p-6 rounded-2xl mb-8"><p className="text-slate-600 text-sm italic font-medium text-left italic leading-relaxed">"{selectedActivity.deskripsi}"</p></div>
+                                    <div className="flex-grow bg-slate-50 p-6 rounded-2xl mb-8 text-left"><p className="text-slate-600 text-sm italic font-medium text-left italic leading-relaxed">"{selectedActivity.deskripsi}"</p></div>
                                     <button onClick={() => setSelectedActivity(null)} className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest leading-none">Tutup</button>
                                 </div>
                             </div>
