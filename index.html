@@ -26,7 +26,7 @@
         <div class="flex items-center justify-center min-h-screen">
             <div class="text-center">
                 <div class="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-teal-800 font-bold animate-pulse uppercase text-[10px] tracking-widest text-center">Memuatkan Portal...</p>
+                <p class="text-teal-800 font-bold animate-pulse uppercase text-[10px] tracking-widest text-center text-center">Memuatkan Portal...</p>
             </div>
         </div>
     </div>
@@ -183,9 +183,12 @@
             const handleFileChange = (e, targetJenis = 'Laporan') => {
                 const files = Array.from(e.target.files);
                 const maxFiles = targetJenis === 'Promosi' ? 1 : 5;
-                const currentImages = formData.jenis === targetJenis ? formData.gambarData : [];
+                
+                // Jika borang bertukar, kita bersihkan dulu gambar lama untuk mengelakkan campur aduk
+                const newPreviews = [...imagePreviews];
+                const newGambarData = [...formData.gambarData];
 
-                if (currentImages.length + files.length > maxFiles) {
+                if (newGambarData.length + files.length > maxFiles) {
                     alert(`Maksimum ${maxFiles} gambar dibenarkan.`);
                     return;
                 }
@@ -215,26 +218,52 @@
 
             const handleSubmit = async (e, targetJenis = 'Laporan') => {
                 if (e) e.preventDefault();
+                
+                // Pastikan passcode betul
                 if (formData.passcode !== COMMUNITY_PASSCODE) { 
+                    alert("Kod Rahsia Salah!");
                     setSubmitStatus('wrong_passcode'); 
                     return; 
                 }
+
+                // Validasi Imej
                 if (formData.gambarData.length === 0) { 
-                    alert("Sila muat naik sekurang-kurangnya satu gambar."); 
+                    alert("Sila muat naik sekurang-kurangnya satu gambar/poster."); 
                     return; 
                 }
 
                 setLoading(true); 
                 setSubmitStatus('sending');
-                const dataToSubmit = { ...formData, jenis: targetJenis };
+
+                // Sediakan data untuk dihantar
+                const dataToSubmit = { 
+                    ...formData, 
+                    jenis: targetJenis,
+                    namaAhli: targetJenis === 'Promosi' ? (formData.namaAhli || "ADMIN") : formData.namaAhli
+                };
 
                 try {
-                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(dataToSubmit), mode: 'no-cors' });
+                    await fetch(SCRIPT_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify(dataToSubmit), 
+                        mode: 'no-cors' 
+                    });
+                    
                     setSubmitStatus('success');
+                    alert("Berjaya Dihantar!");
+                    
+                    // Reset Form
                     setFormData({ jenis: 'Laporan', namaAhli: '', tajukAktiviti: '', tarikh: '', lokasi: '', deskripsi: '', whatsapp: '', gambarData: [], passcode: '' });
                     setImagePreviews([]);
-                    setTimeout(fetchActivities, 3000);
-                } catch (err) { setSubmitStatus('error'); } finally { setLoading(false); }
+                    
+                    // Refresh data
+                    setTimeout(fetchActivities, 2000);
+                } catch (err) { 
+                    alert("Gagal menghantar. Sila cuba lagi.");
+                    setSubmitStatus('error'); 
+                } finally { 
+                    setLoading(false); 
+                }
             };
 
             const pastActivities = useMemo(() => activities.filter(a => a.jenis === 'Laporan' || !a.jenis), [activities]);
@@ -252,7 +281,7 @@
                                 <span className="text-[8px] font-bold text-teal-600 uppercase tracking-widest mt-1 leading-none text-left">Subang Jaya</span>
                             </div>
                         </div>
-                        <div className="hidden md:flex gap-2">
+                        <div className="hidden md:flex gap-2 text-left">
                             {['feed', 'share', 'admin'].map(v => (
                                 <button key={v} onClick={() => setView(v)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${view === v ? 'bg-teal-700 text-white shadow-lg scale-105' : 'text-slate-400 hover:bg-slate-50'}`}>
                                     {v === 'feed' ? 'Inspirasi' : v === 'share' ? 'Kongsi' : 'Dashboard'}
@@ -264,7 +293,7 @@
 
                     {/* MOBILE MENU */}
                     {isMenuOpen && (
-                        <div className="md:hidden bg-white border-b border-teal-50 p-6 flex flex-col gap-3">
+                        <div className="md:hidden bg-white border-b border-teal-50 p-6 flex flex-col gap-3 text-left">
                             {['feed', 'share', 'admin'].map(v => (
                                 <button key={v} onClick={() => {setView(v); setIsMenuOpen(false);}} className={`px-5 py-4 rounded-xl text-left text-xs font-black uppercase tracking-widest ${view === v ? 'bg-teal-700 text-white' : 'text-slate-400'}`}>
                                     {v === 'feed' ? 'Inspirasi' : v === 'share' ? 'Kongsi' : 'Dashboard'}
@@ -273,42 +302,41 @@
                         </div>
                     )}
 
-                    <main className="max-w-6xl mx-auto w-full p-6 flex-grow">
+                    <main className="max-w-6xl mx-auto w-full p-6 flex-grow text-left">
                         {/* HEADER */}
                         <div className="text-center mb-16 md:mb-24 py-10">
-                            <h1 className="text-4xl md:text-7xl font-black text-slate-800 tracking-tighter mb-6 leading-tight text-center">Portal Aktiviti Komuniti <br/><span className="text-teal-700 text-center">ISMA Subang Jaya</span></h1>
-                            <p className="text-slate-500 max-w-2xl mx-auto text-base italic font-medium text-center px-2">"Merapatkan ukhuwah, mendokumentasikan khidmat bakti, dan memberi inspirasi kepada komuniti setempat."</p>
+                            <h1 className="text-4xl md:text-7xl font-black text-slate-800 tracking-tighter mb-6 leading-tight text-center">Portal Aktiviti Komuniti <br/><span className="text-teal-700 text-center text-center">ISMA Subang Jaya</span></h1>
+                            <p className="text-slate-500 max-w-2xl mx-auto text-base italic font-medium text-center px-2 text-center text-center">"Merapatkan ukhuwah, mendokumentasikan khidmat bakti, dan memberi inspirasi kepada komuniti setempat."</p>
                         </div>
 
                         {/* VIEW: FEED */}
                         {view === 'feed' && (
-                            <div className="space-y-24">
-                                <section>
-                                    <div className="flex justify-between items-center mb-10 border-b-4 border-teal-600/10 pb-4">
-                                        <div className="flex flex-col text-left">
+                            <div className="space-y-24 text-left">
+                                <section className="text-left">
+                                    <div className="flex justify-between items-center mb-10 border-b-4 border-teal-600/10 pb-4 text-left">
+                                        <div className="flex flex-col text-left text-left">
                                             <h2 className="text-xl md:text-2xl font-black text-slate-800 uppercase flex items-center gap-3 text-left"><Icon name="grid" className="text-teal-600" /> Papan Inspirasi</h2>
                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 text-left">Aktiviti Terkini Ahli Bersama Komuniti</span>
                                         </div>
-                                        <button onClick={fetchActivities} className="p-3 bg-white border border-slate-200 rounded-2xl text-teal-700 hover:bg-teal-50 shadow-sm transition-colors">
+                                        <button onClick={fetchActivities} className="p-3 bg-white border border-slate-200 rounded-2xl text-teal-700 hover:bg-teal-50 shadow-sm transition-colors text-left">
                                             <Icon name="refresh" size={16} className={fetching ? "animate-spin" : ""} />
                                         </button>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 text-left">
                                         {pastActivities.slice(0, 9).map((act, i) => (
-                                            <div key={i} className="bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group text-left flex flex-col">
+                                            <div key={i} className="bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all group text-left flex flex-col text-left">
                                                 <div className="h-64 relative overflow-hidden bg-slate-50 text-left cursor-pointer" onClick={() => setSelectedActivity(act)}>
                                                     <img src={processSingleDriveUrl(act.gambarUrl?.split(',')[0])} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="" />
-                                                    <div className="absolute bottom-4 right-4 bg-teal-700/90 backdrop-blur-md text-white px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                                                    <div className="absolute bottom-4 right-4 bg-teal-700/90 backdrop-blur-md text-white px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg text-left">
                                                         <Icon name="calendar" size={12}/> {formatDisplayDate(act.tarikh)}
                                                     </div>
                                                 </div>
-                                                <div className="p-8 text-left flex-grow">
-                                                    <h3 className="text-lg font-black text-slate-800 mb-1 leading-tight group-hover:text-teal-700 transition-colors line-clamp-2 uppercase leading-none text-left cursor-pointer" onClick={() => setSelectedActivity(act)}>{act.tajukAktiviti}</h3>
+                                                <div className="p-8 text-left flex-grow text-left">
+                                                    <h3 className="text-lg font-black text-slate-800 mb-1 leading-tight group-hover:text-teal-700 transition-colors line-clamp-2 uppercase leading-none text-left cursor-pointer text-left" onClick={() => setSelectedActivity(act)}>{act.tajukAktiviti}</h3>
                                                     <p className="text-[9px] font-black text-teal-600 uppercase tracking-widest mb-3 text-left text-left">Dilaporkan oleh: {act.namaAhli || "Ahli ISMA"}</p>
-                                                    
-                                                    <p className="text-slate-500 text-xs italic line-clamp-3 font-medium text-left leading-relaxed mb-4">"{act.deskripsi}"</p>
-                                                    <div className="pt-4 border-t border-slate-100">
-                                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Kongsi Inspirasi:</p>
+                                                    <p className="text-slate-500 text-xs italic line-clamp-3 font-medium text-left leading-relaxed mb-4 text-left">"{act.deskripsi}"</p>
+                                                    <div className="pt-4 border-t border-slate-100 text-left">
+                                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 text-left">Kongsi Inspirasi:</p>
                                                         <SocialShare activity={act} />
                                                     </div>
                                                 </div>
@@ -318,37 +346,34 @@
                                 </section>
 
                                 {/* SEKSYEN PROMOSI (SQUARE TILES) */}
-                                <section className="bg-teal-900/5 -mx-4 px-4 py-16 md:py-24 rounded-[3rem] md:rounded-[6rem] text-center">
-                                    <div className="mb-12">
-                                        <div className="bg-teal-700 text-white px-5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-4 inline-block shadow-lg">Sertai Kami</div>
-                                        <h2 className="text-3xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter text-center leading-none">Aktiviti Akan Datang</h2>
+                                <section className="bg-teal-900/5 -mx-4 px-4 py-16 md:py-24 rounded-[3rem] md:rounded-[6rem] text-center text-left">
+                                    <div className="mb-12 text-center">
+                                        <div className="bg-teal-700 text-white px-5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-4 inline-block shadow-lg text-center">Sertai Kami</div>
+                                        <h2 className="text-3xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter text-center leading-none text-center">Aktiviti Akan Datang</h2>
                                     </div>
-                                    
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 max-w-6xl mx-auto px-2 text-left">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 max-w-6xl mx-auto px-2 text-left text-left">
                                         {upcomingPromos.slice(0, 10).map((promo, i) => (
-                                            <div key={i} className="bg-white rounded-[2rem] overflow-hidden border border-teal-50 shadow-md flex flex-col hover:scale-[1.03] transition-all group relative text-left">
-                                                <div className="aspect-square bg-slate-100 relative overflow-hidden border-b border-teal-50 cursor-pointer" onClick={() => setSelectedActivity(promo)}>
-                                                    <img src={processSingleDriveUrl(promo.gambarUrl)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Poster" />
-                                                    <div className="absolute top-2 left-2 bg-teal-600 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm">Promosi</div>
+                                            <div key={i} className="bg-white rounded-[2rem] overflow-hidden border border-teal-50 shadow-md flex flex-col hover:scale-[1.03] transition-all group relative text-left text-left">
+                                                <div className="aspect-square bg-slate-100 relative overflow-hidden border-b border-teal-50 cursor-pointer text-left" onClick={() => setSelectedActivity(promo)}>
+                                                    <img src={processSingleDriveUrl(promo.gambarUrl)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 text-left" alt="Poster" />
+                                                    <div className="absolute top-2 left-2 bg-teal-600 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm text-left">Promosi</div>
                                                 </div>
-                                                <div className="p-4 flex flex-col flex-grow text-left">
-                                                    <div className="flex items-center gap-1.5 text-[8px] font-black text-teal-600 uppercase tracking-widest mb-1.5 leading-none">
+                                                <div className="p-4 flex flex-col flex-grow text-left text-left">
+                                                    <div className="flex items-center gap-1.5 text-[8px] font-black text-teal-600 uppercase tracking-widest mb-1.5 leading-none text-left">
                                                         <Icon name="calendar" size={10}/> {formatDisplayDate(promo.tarikh)}
                                                     </div>
-                                                    <h3 className="text-[10px] md:text-xs font-black text-slate-800 leading-tight uppercase line-clamp-2 mb-3 min-h-[2rem] text-left">
+                                                    <h3 className="text-[10px] md:text-xs font-black text-slate-800 leading-tight uppercase line-clamp-2 mb-3 min-h-[2rem] text-left text-left">
                                                         {promo.tajukAktiviti}
                                                     </h3>
-                                                    <div className="mt-auto space-y-3">
+                                                    <div className="mt-auto space-y-3 text-left">
                                                         <SocialShare activity={promo} />
-                                                        <div className="flex gap-1.5">
+                                                        <div className="flex gap-1.5 text-left">
                                                             {promo.whatsapp && (
-                                                                <a href={`https://wa.me/${promo.whatsapp}`} target="_blank" className="flex-1 bg-green-600 text-white p-2.5 rounded-xl flex items-center justify-center gap-1.5 font-black text-[8px] uppercase shadow-sm active:scale-95 transition-all">
+                                                                <a href={`https://wa.me/${promo.whatsapp}`} target="_blank" className="flex-1 bg-green-600 text-white p-2.5 rounded-xl flex items-center justify-center gap-1.5 font-black text-[8px] uppercase shadow-sm active:scale-95 transition-all text-center">
                                                                     <Icon name="whatsapp" size={12}/> Info
                                                                 </a>
                                                             )}
-                                                            <button onClick={() => setSelectedActivity(promo)} className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors">
-                                                                <Icon name="info" size={12}/>
-                                                            </button>
+                                                            <button onClick={() => setSelectedActivity(promo)} className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors text-center text-left"><Icon name="info" size={12}/></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -361,83 +386,87 @@
 
                         {/* VIEW: SHARE */}
                         {view === 'share' && (
-                            <div className="max-w-2xl mx-auto space-y-16 animate-in slide-in-from-bottom text-left px-2">
-                                <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-teal-50 text-left">
-                                    <div className="bg-teal-700 p-10 text-white text-center">
-                                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white text-center leading-none">Hantar Laporan</h2>
-                                        <p className="opacity-70 text-[10px] mt-2 font-bold uppercase text-white text-center tracking-[0.2em]">Ahli ISMA Subang Jaya</p>
+                            <div className="max-w-2xl mx-auto space-y-16 animate-in slide-in-from-bottom text-left px-2 text-left text-left">
+                                
+                                {/* BORANG 1: LAPORAN AHLI */}
+                                <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-teal-50 text-left text-left">
+                                    <div className="bg-teal-700 p-10 text-white text-center text-center">
+                                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white text-center leading-none text-center">Hantar Laporan</h2>
+                                        <p className="opacity-70 text-[10px] mt-2 font-bold uppercase text-white text-center tracking-[0.2em] text-center">Ahli ISMA Subang Jaya</p>
                                     </div>
-                                    <form onSubmit={(e) => handleSubmit(e, 'Laporan')} className="p-8 md:p-12 space-y-6 text-left">
-                                        {submitStatus === 'success' && <div className="bg-teal-50 text-teal-800 p-5 rounded-2xl flex items-center gap-4"><Icon name="check" className="text-teal-600" /> <span className="text-xs font-black uppercase tracking-widest">Berjaya!</span></div>}
+                                    <form onSubmit={(e) => handleSubmit(e, 'Laporan')} className="p-8 md:p-12 space-y-6 text-left text-left">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                            <input name="namaAhli" required value={formData.namaAhli} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Nama Anda" />
-                                            <input type="date" name="tarikh" required value={formData.tarikh} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" />
+                                            <input name="namaAhli" required value={formData.namaAhli} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none text-left" placeholder="Nama Anda" />
+                                            <input type="date" name="tarikh" required value={formData.tarikh} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none text-left" />
                                         </div>
-                                        <input name="tajukAktiviti" required value={formData.tajukAktiviti} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Tajuk Aktiviti" />
-                                        <textarea name="deskripsi" required rows="4" value={formData.deskripsi} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Ringkasan..."></textarea>
+                                        <input name="tajukAktiviti" required value={formData.tajukAktiviti} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none text-left" placeholder="Tajuk Aktiviti" />
+                                        <textarea name="deskripsi" required rows="4" value={formData.deskripsi} onChange={handleInputChange} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none text-left" placeholder="Ringkasan..."></textarea>
                                         
-                                        <div className="space-y-4 text-left">
+                                        <div className="space-y-4 text-left text-left">
                                             <div className="flex flex-wrap gap-2 text-left">
-                                                {formData.jenis === 'Laporan' && imagePreviews.map((src, i) => (
+                                                {formData.gambarData.length > 0 && imagePreviews.map((src, i) => (
                                                     <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-white shadow-md text-left">
-                                                        <img src={src} className="w-full h-full object-cover" />
-                                                        <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 p-0.5 bg-rose-500 text-white rounded"><Icon name="x" size={10}/></button>
+                                                        <img src={src} className="w-full h-full object-cover text-left" alt="" />
+                                                        <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 p-0.5 bg-rose-500 text-white rounded text-center"><Icon name="x" size={10}/></button>
                                                     </div>
                                                 ))}
                                             </div>
-                                            {(formData.jenis === 'Laporan' || formData.gambarData.length === 0) && imagePreviews.length < 5 && (
+                                            {imagePreviews.length < 5 && (
                                                 <div className="relative border-2 border-dashed border-teal-100 rounded-[2.5rem] p-10 text-center bg-slate-50 hover:bg-teal-50 cursor-pointer transition-colors text-center text-center">
-                                                    <input type="file" accept="image/*" multiple onChange={(e) => handleFileChange(e, 'Laporan')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                                    <Icon name="upload" className="mx-auto mb-2 text-teal-600 text-center" size={24} />
-                                                    <span className="text-[10px] font-black uppercase text-slate-400 text-center block font-sans">Muat Naik Gambar ({formData.jenis === 'Laporan' ? imagePreviews.length : 0}/5)</span>
+                                                    <input type="file" accept="image/*" multiple onChange={(e) => handleFileChange(e, 'Laporan')} className="absolute inset-0 opacity-0 cursor-pointer text-center text-center text-center" />
+                                                    <Icon name="upload" className="mx-auto mb-2 text-teal-600 text-center text-center text-center text-center" size={24} />
+                                                    <span className="text-[10px] font-black uppercase text-slate-400 text-center block font-sans text-center">Muat Naik Gambar ({imagePreviews.length}/5)</span>
                                                 </div>
                                             )}
                                         </div>
                                         <div className="p-6 bg-teal-50 rounded-2xl border border-teal-100 text-left">
-                                            <input type="password" required name="passcode" value={formData.passcode} onChange={handleInputChange} className="w-full p-4 bg-white rounded-xl text-center font-black outline-none shadow-inner" placeholder="KOD RAHSIA" />
+                                            <input type="password" required name="passcode" value={formData.passcode} onChange={handleInputChange} className="w-full p-4 bg-white rounded-xl text-center font-black outline-none shadow-inner text-left" placeholder="KOD RAHSIA" />
                                         </div>
-                                        <button disabled={loading} className="w-full bg-teal-700 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl">
+                                        <button disabled={loading} className="w-full bg-teal-700 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl text-center leading-none">
                                             {loading ? "Menghantar..." : "Hantar Laporan"}
                                         </button>
                                     </form>
                                 </div>
 
-                                {/* BORANG PROMOSI */}
-                                <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 text-left">
-                                    <div className="p-10 text-white flex items-center gap-4 text-left border-b border-white/5">
+                                {/* BORANG 2: TAMBAH PROMOSI (ADMIN) */}
+                                <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 text-left text-left text-left">
+                                    <div className="p-10 text-white flex items-center gap-4 text-left border-b border-white/5 text-left text-left text-left">
                                         <div className="p-3 bg-teal-500 rounded-2xl shadow-xl shadow-teal-500/20 text-left text-left"><Icon name="ticket" size={24}/></div>
-                                        <div className="text-left text-left text-left text-left">
-                                            <h2 className="text-2xl font-black uppercase text-white m-0 text-left leading-none">Tambah Promosi</h2>
-                                            <p className="text-teal-400 text-[8px] font-bold uppercase tracking-widest mt-1.5 m-0 text-left">Admin Cawangan</p>
+                                        <div className="text-left text-left text-left">
+                                            <h2 className="text-2xl font-black uppercase text-white m-0 text-left leading-none text-left">Tambah Promosi</h2>
+                                            <p className="text-teal-400 text-[8px] font-bold uppercase tracking-widest mt-1.5 m-0 text-left text-left">Admin Cawangan</p>
                                         </div>
                                     </div>
-                                    <form onSubmit={(e) => handleSubmit(e, 'Promosi')} className="p-8 md:p-12 space-y-6 text-left">
+                                    <form onSubmit={(e) => handleSubmit(e, 'Promosi')} className="p-8 md:p-12 space-y-6 text-left text-left text-left text-left">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                                            <input name="tajukAktiviti" required value={formData.jenis === 'Promosi' ? formData.tajukAktiviti : ''} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none" placeholder="Nama Program" />
-                                            <input name="tarikh" required value={formData.jenis === 'Promosi' ? formData.tarikh : ''} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none" placeholder="Tarikh" />
+                                            <input name="tajukAktiviti" required value={formData.tajukAktiviti} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none text-left" placeholder="Nama Program" />
+                                            <input name="tarikh" required value={formData.tarikh} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none text-left" placeholder="Tarikh" />
                                         </div>
-                                        <input name="whatsapp" required value={formData.jenis === 'Promosi' ? formData.whatsapp : ''} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none" placeholder="No. WhatsApp untuk pertanyaan lanjut (Contoh: 60123456789)" />
-                                        <textarea name="deskripsi" required rows="3" value={formData.jenis === 'Promosi' ? formData.deskripsi : ''} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none" placeholder="Butiran..."></textarea>
                                         
-                                        <div className="flex flex-col items-center gap-3">
-                                            {formData.jenis === 'Promosi' && imagePreviews.length > 0 ? (
-                                                <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-2 border-white/20">
-                                                    <img src={imagePreviews[0]} className="w-full h-full object-cover" />
-                                                    <button type="button" onClick={() => removeImage(0)} className="absolute top-1 right-1 bg-rose-500 p-1 rounded text-white"><Icon name="trash" size={12}/></button>
+                                        {/* Input WhatsApp - Diperbaiki pautan data */}
+                                        <input name="whatsapp" required value={formData.whatsapp} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none text-left" placeholder="No. WhatsApp untuk pertanyaan lanjut (Contoh: 60123456789)" />
+                                        
+                                        <textarea name="deskripsi" required rows="3" value={formData.deskripsi} onChange={handleInputChange} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white placeholder-white/20 outline-none text-left" placeholder="Butiran promosi..."></textarea>
+                                        
+                                        <div className="flex flex-col items-center gap-3 text-center text-center">
+                                            {imagePreviews.length > 0 ? (
+                                                <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-2 border-white/20 text-center text-center text-center">
+                                                    <img src={imagePreviews[0]} className="w-full h-full object-cover text-center text-center text-center text-center" alt="" />
+                                                    <button type="button" onClick={() => removeImage(0)} className="absolute top-1 right-1 bg-rose-500 p-1 rounded text-white text-center text-center text-center"><Icon name="trash" size={12}/></button>
                                                 </div>
                                             ) : (
-                                                <div className="relative border border-dashed border-white/20 rounded-[2rem] p-8 text-center bg-white/5 hover:bg-white/10 cursor-pointer w-full transition-colors text-center text-center">
-                                                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'Promosi')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                                    <Icon name="upload" className="mx-auto mb-2 text-white/50 text-center" size={32} />
-                                                    <span className="text-[10px] font-black uppercase text-white/30 text-center block">Upload QR Code Pendaftaran/Poster Program</span>
+                                                <div className="relative border border-dashed border-white/20 rounded-[2rem] p-8 text-center bg-white/5 hover:bg-white/10 cursor-pointer w-full transition-colors text-center text-center text-center text-center">
+                                                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'Promosi')} className="absolute inset-0 opacity-0 cursor-pointer text-center text-center text-center text-center" />
+                                                    <Icon name="upload" className="mx-auto mb-2 text-white/50 text-center text-center text-center text-center" size={32} />
+                                                    <span className="text-[10px] font-black uppercase text-white/30 text-center block text-center text-center">Muat Naik QR Code Pendaftaran/Poster Program</span>
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 text-center">
-                                            <input type="password" required name="passcode" value={formData.passcode} onChange={handleInputChange} className="w-full p-4 bg-white text-slate-900 rounded-xl text-center font-black outline-none border-none shadow-inner" placeholder="KOD KOMUNITI" />
+                                        <div className="p-6 bg-white/5 rounded-2xl border border-white/5 text-center text-center text-center">
+                                            <input type="password" required name="passcode" value={formData.passcode} onChange={handleInputChange} className="w-full p-4 bg-white text-slate-900 rounded-xl text-center font-black outline-none border-none shadow-inner text-center text-center" placeholder="KOD KOMUNITI" />
                                         </div>
-                                        <button disabled={loading} className="w-full bg-teal-500 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl">
+                                        <button disabled={loading} className="w-full bg-teal-500 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl text-center leading-none">
                                             {loading ? "Menghantar..." : "Terbitkan Promosi"}
                                         </button>
                                     </form>
@@ -447,48 +476,48 @@
 
                         {/* VIEW: DASHBOARD */}
                         {view === 'admin' && (
-                            <div className="space-y-12 py-10 text-left animate-in slide-in-from-bottom text-left text-left">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left text-left">
-                                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm text-left shadow-sm shadow-sm">
-                                        <Icon name="chart" size={32} className="text-teal-600 text-left text-left"/>
-                                        <div className="text-left leading-none text-left">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-left leading-none">Jumlah Aktiviti</p>
-                                            <p className="text-4xl font-black text-slate-800 leading-none text-left text-left">{pastActivities.length}</p>
+                            <div className="space-y-12 py-10 text-left animate-in slide-in-from-bottom text-left text-left text-left">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left text-left text-left">
+                                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm text-left shadow-sm shadow-sm text-left">
+                                        <Icon name="chart" size={32} className="text-teal-600 text-left text-left text-left"/>
+                                        <div className="text-left leading-none text-left text-left">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-left leading-none text-left">Jumlah Aktiviti</p>
+                                            <p className="text-4xl font-black text-slate-800 leading-none text-left text-left text-left">{pastActivities.length}</p>
                                         </div>
                                     </div>
-                                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm text-left shadow-sm shadow-sm">
-                                        <Icon name="users" size={32} className="text-blue-600 text-left text-left"/>
-                                        <div className="text-left leading-none text-left">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-left leading-none">Ahli Melapor</p>
-                                            <p className="text-4xl font-black text-slate-800 leading-none text-left text-left">{uniqueMembers}</p>
+                                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm text-left shadow-sm shadow-sm text-left">
+                                        <Icon name="users" size={32} className="text-blue-600 text-left text-left text-left"/>
+                                        <div className="text-left leading-none text-left text-left text-left">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-left leading-none text-left text-left">Ahli Melapor</p>
+                                            <p className="text-4xl font-black text-slate-800 leading-none text-left text-left text-left text-left">{uniqueMembers}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden max-w-5xl mx-auto shadow-sm text-left text-left">
-                                    <div className="overflow-x-auto text-left text-left">
-                                        <table className="w-full text-left text-left text-left text-left">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden max-w-5xl mx-auto shadow-sm text-left text-left text-left text-left">
+                                    <div className="overflow-x-auto text-left text-left text-left text-left">
+                                        <table className="w-full text-left text-left text-left text-left text-left">
                                             <thead className="bg-slate-50/50 text-left text-left text-left">
                                                 <tr className="text-left">
-                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">Tarikh</th>
-                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left text-left">Ahli / Jenis</th>
-                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left text-left">Tajuk Aktiviti</th>
-                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center text-center">Status</th>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left text-left text-left text-left">Tarikh</th>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left text-left text-left text-left text-left">Ahli / Jenis</th>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left text-left text-left text-left text-left text-left">Tajuk Aktiviti</th>
+                                                    <th className="p-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center text-center text-center">Status</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y text-sm text-left text-left">
+                                            <tbody className="divide-y text-sm text-left text-left text-left text-left">
                                                 {activities.map((act, idx) => (
-                                                    <tr key={idx} className="hover:bg-teal-50/20 text-left transition-colors text-left text-left">
-                                                        <td className="p-6 text-slate-400 font-bold whitespace-nowrap text-left">{formatDisplayDate(act.tarikh)}</td>
-                                                        <td className="p-6 text-left text-left">
-                                                            <div className="flex flex-col text-left">
-                                                                <span className="font-black text-slate-800 uppercase leading-none text-left">{act.namaAhli || "ADMIN"}</span>
-                                                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full w-max mt-1 uppercase text-left text-left ${act.jenis === 'Promosi' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
+                                                    <tr key={idx} className="hover:bg-teal-50/20 text-left transition-colors text-left text-left text-left text-left text-left">
+                                                        <td className="p-6 text-slate-400 font-bold whitespace-nowrap text-left text-left text-left text-left">{formatDisplayDate(act.tarikh)}</td>
+                                                        <td className="p-6 text-left text-left text-left">
+                                                            <div className="flex flex-col text-left text-left text-left text-left">
+                                                                <span className="font-black text-slate-800 uppercase leading-none text-left text-left text-left text-left text-left text-left">{act.namaAhli || "ADMIN"}</span>
+                                                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full w-max mt-1 uppercase text-left text-left text-left text-left text-left ${act.jenis === 'Promosi' ? 'bg-blue-50 text-blue-700' : 'bg-green-50 text-green-700'}`}>
                                                                     {act.jenis || 'Laporan'}
                                                                 </span>
                                                             </div>
                                                         </td>
-                                                        <td className="p-6 text-slate-600 font-medium uppercase text-left">{act.tajukAktiviti}</td>
-                                                        <td className="p-6 text-center leading-none text-center"><span className="bg-teal-50 text-teal-700 text-[9px] font-black px-3 py-1 rounded-full border border-teal-100 uppercase text-center leading-none">DIARKIB</span></td>
+                                                        <td className="p-6 text-slate-600 font-medium uppercase text-left text-left text-left text-left text-left">{act.tajukAktiviti}</td>
+                                                        <td className="p-6 text-center leading-none text-center text-center text-center text-center text-center text-center"><span className="bg-teal-50 text-teal-700 text-[9px] font-black px-3 py-1 rounded-full border border-teal-100 uppercase text-center leading-none text-center leading-none text-center leading-none text-center leading-none">DIARKIB</span></td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -500,51 +529,51 @@
                     </main>
 
                     {/* FOOTER - Diperbaharui dengan pautan keahlian */}
-                    <footer className="bg-slate-900 py-24 border-t border-slate-800 text-center text-white mt-auto">
-                        <div className="max-w-6xl mx-auto px-4 text-center text-center text-center text-center text-center">
-                            <Icon name="users" className="text-teal-400 mx-auto mb-10 text-center text-center" size={40}/>
+                    <footer className="bg-slate-900 py-24 border-t border-slate-800 text-center text-white mt-auto text-center">
+                        <div className="max-w-6xl mx-auto px-4 text-center text-center text-center text-center text-center text-center">
+                            <Icon name="users" className="text-teal-400 mx-auto mb-10 text-center text-center text-center text-center" size={40}/>
                             
-                            <div className="mb-12 max-w-2xl mx-auto text-center">
-                                <h3 className="text-white font-black text-xl md:text-2xl uppercase tracking-tighter mb-4 text-center leading-none">Sertai Keluarga ISMA Subang Jaya</h3>
-                                <p className="text-slate-400 text-sm md:text-base mb-8 font-medium text-center">
-                                    Daftar keahlian di pautan <a href="https://ahli.isma.my" target="_blank" className="text-teal-400 font-bold underline hover:text-teal-300 transition-colors">ahli.isma.my</a> untuk mendapat info terkini & kelebihan eksklusif sebagai ahli.
+                            <div className="mb-12 max-w-2xl mx-auto text-center text-center text-center text-center">
+                                <h3 className="text-white font-black text-xl md:text-2xl uppercase tracking-tighter mb-4 text-center leading-none text-center text-center">Sertai Keluarga ISMA Subang Jaya</h3>
+                                <p className="text-slate-400 text-sm md:text-base mb-8 font-medium text-center text-center text-center text-center">
+                                    Daftar keahlian di pautan <a href="https://ahli.isma.my" target="_blank" className="text-teal-400 font-bold underline hover:text-teal-300 transition-colors text-center">ahli.isma.my</a> untuk mendapat info terkini & kelebihan eksklusif sebagai ahli.
                                 </p>
-                                <a href="https://ahli.isma.my" target="_blank" className="inline-flex items-center gap-3 bg-teal-600 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-teal-500 transition-all shadow-xl leading-none text-center">
-                                    <Icon name="userPlus" size={16} /> Daftar Sekarang <Icon name="external" size={12} className="opacity-50" />
+                                <a href="https://ahli.isma.my" target="_blank" className="inline-flex items-center gap-3 bg-teal-600 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-teal-500 transition-all shadow-xl leading-none text-center text-center text-center text-center">
+                                    <Icon name="userPlus" size={16} /> Daftar Sekarang <Icon name="external" size={12} className="opacity-50 text-center" />
                                 </a>
                             </div>
 
-                            <p className="text-white font-black text-2xl uppercase tracking-tighter mb-2 mt-14 text-center leading-none text-center text-center text-center">ISMA Subang Jaya</p>
-                            <p className="text-[10px] uppercase tracking-[0.6em] text-slate-500 font-black text-center leading-none text-center text-center text-center">Membangun Ummah, Memperkukuh Komuniti</p>
-                            <p className="text-[11px] text-slate-600 font-black tracking-[0.3em] uppercase mt-10 opacity-50 text-center text-center text-center text-center">© 2026 Portal Komuniti Cawangan Subang Jaya</p>
+                            <p className="text-white font-black text-2xl uppercase tracking-tighter mb-2 mt-14 text-center leading-none text-center text-center text-center text-center">ISMA Subang Jaya</p>
+                            <p className="text-[10px] uppercase tracking-[0.6em] text-slate-500 font-black text-center leading-none text-center text-center text-center text-center text-center text-center">Membangun Ummah, Memperkukuh Komuniti</p>
+                            <p className="text-[11px] text-slate-600 font-black tracking-[0.3em] uppercase mt-10 opacity-50 text-center text-center text-center text-center text-center text-center text-center text-center">© 2026 Portal Komuniti Cawangan Subang Jaya</p>
                         </div>
                     </footer>
 
                     {/* MODAL DETAIL */}
                     {selectedActivity && (
-                        <div className="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4 text-left text-left" onClick={() => setSelectedActivity(null)}>
-                            <div className="bg-white rounded-[2rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in duration-300 text-left text-left" onClick={e => e.stopPropagation()}>
-                                <div className="md:w-1/2 h-64 md:h-auto bg-slate-100 relative text-left text-left">
-                                    <div className="flex h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar text-left text-left text-left">
+                        <div className="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4 text-left text-left text-left text-left" onClick={() => setSelectedActivity(null)}>
+                            <div className="bg-white rounded-[2rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in duration-300 text-left text-left text-left text-left text-left text-left" onClick={e => e.stopPropagation()}>
+                                <div className="md:w-1/2 h-64 md:h-auto bg-slate-100 relative text-left text-left text-left text-left">
+                                    <div className="flex h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar text-left text-left text-left text-left text-left">
                                         {(selectedActivity.gambarUrl || "").split(',').map((url, i) => (
-                                            <img key={i} src={processSingleDriveUrl(url)} className="min-w-full h-full object-cover snap-center" alt="" />
+                                            <img key={i} src={processSingleDriveUrl(url)} className="min-w-full h-full object-cover snap-center text-left" alt="" />
                                         ))}
                                     </div>
-                                    <button onClick={() => setSelectedActivity(null)} className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all text-left text-left text-left text-left text-left text-left"><Icon name="x" size={20}/></button>
+                                    <button onClick={() => setSelectedActivity(null)} className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all text-left text-left text-left text-left text-left text-left text-left text-left"><Icon name="x" size={20}/></button>
                                 </div>
-                                <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto text-left flex flex-col text-left text-left text-left text-left">
-                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg mb-4 inline-block w-max text-left text-left ${selectedActivity.jenis === 'Promosi' ? 'bg-blue-50 text-blue-700' : 'bg-teal-50 text-teal-700'}`}>
+                                <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto text-left flex flex-col text-left text-left text-left text-left text-left text-left">
+                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg mb-4 inline-block w-max text-left text-left text-left text-left ${selectedActivity.jenis === 'Promosi' ? 'bg-blue-50 text-blue-700' : 'bg-teal-50 text-teal-700'}`}>
                                         {selectedActivity.jenis === 'Promosi' ? 'Aktiviti Akan Datang' : 'Inspirasi Komuniti'}
                                     </span>
-                                    <h2 className="text-2xl font-black leading-tight text-slate-800 mb-6 text-left leading-none uppercase text-left text-left text-left text-left">{selectedActivity.tajukAktiviti}</h2>
-                                    <div className="flex-grow bg-slate-50 p-6 rounded-2xl mb-8 text-left text-left text-left text-left text-left"><p className="text-slate-600 text-sm italic font-medium text-left leading-relaxed text-left text-left text-left text-left italic">"{selectedActivity.deskripsi}"</p></div>
+                                    <h2 className="text-2xl font-black leading-tight text-slate-800 mb-6 text-left leading-none uppercase text-left text-left text-left text-left text-left text-left">{selectedActivity.tajukAktiviti}</h2>
+                                    <div className="flex-grow bg-slate-50 p-6 rounded-2xl mb-8 text-left text-left text-left text-left text-left text-left text-left text-left"><p className="text-slate-600 text-sm italic font-medium text-left leading-relaxed text-left text-left text-left text-left text-left italic">"{selectedActivity.deskripsi}"</p></div>
                                     
-                                    <div className="mb-6 p-4 border border-teal-100 rounded-2xl bg-teal-50/30 text-left text-left">
-                                        <p className="text-[9px] font-black uppercase text-teal-800 mb-3 tracking-widest text-left">Kongsi ke Media Sosial:</p>
+                                    <div className="mb-6 p-4 border border-teal-100 rounded-2xl bg-teal-50/30 text-left text-left text-left text-left text-left">
+                                        <p className="text-[9px] font-black uppercase text-teal-800 mb-3 tracking-widest text-left text-left">Kongsi ke Media Sosial:</p>
                                         <SocialShare activity={selectedActivity} />
                                     </div>
                                     
-                                    <button onClick={() => setSelectedActivity(null)} className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest leading-none text-center text-center text-center text-center">Tutup</button>
+                                    <button onClick={() => setSelectedActivity(null)} className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest leading-none text-center text-center text-center text-center text-center text-center text-center text-center">Tutup</button>
                                 </div>
                             </div>
                         </div>
