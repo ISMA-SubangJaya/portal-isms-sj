@@ -3,19 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Portal Aktiviti ISMA Subang Jaya</title>
-    
     <!-- React & Babel CDN -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin="anonymous"></script>
-    
-    <!-- Tailwind CSS -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -26,15 +22,16 @@
 </head>
 <body class="bg-[#FDFCF8]">
     <div id="root">
-        <div class="flex items-center justify-center min-h-screen text-center">
-            <div>
+        <!-- Paparan Loading Awal -->
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="text-center">
                 <div class="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-teal-800 font-bold animate-pulse text-xs tracking-widest uppercase">Menyambung ke Portal...</p>
+                <p class="text-teal-800 font-bold animate-pulse uppercase text-[10px] tracking-widest">Memuatkan Portal...</p>
             </div>
         </div>
     </div>
 
-    <script type="text/babel" data-presets="react">
+    <script type="text/babel">
         const { useState, useEffect, useMemo, useCallback } = React;
 
         // ==========================================
@@ -44,11 +41,12 @@
         const COMMUNITY_PASSCODE = "ISMA-SJ-2026"; 
         const LOGO_URL ="https://i.imgur.com/PweAKvQ.png"; 
 
+        // Komponen Ikon SVG Manual (Untuk kestabilan maksimum)
         const Icon = ({ name, size = 20, className = "" }) => {
             const paths = {
                 plus: <path d="M5 12h14m-7-7v14"/>,
                 grid: <React.Fragment><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></React.Fragment>,
-                list: <React.Fragment><line x1="8" x2="21" y1="6" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></React.Fragment>,
+                list: <React.Fragment><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></React.Fragment>,
                 send: <React.Fragment><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></React.Fragment>,
                 calendar: <React.Fragment><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></React.Fragment>,
                 users: <React.Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></React.Fragment>,
@@ -61,7 +59,9 @@
                 userPlus: <React.Fragment><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="16" x2="22" y1="11" y2="11"/></React.Fragment>,
                 arrow: <React.Fragment><path d="M5 12h14M12 5l7 7-7 7"/></React.Fragment>,
                 chart: <React.Fragment><path d="M3 3v18h18M7 16v-4M11 16V9M15 16V5M19 16v-7"/></React.Fragment>,
-                whatsapp: <React.Fragment><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .004 5.408 0 12.046c0 2.121.554 4.191 1.605 6.012L0 24l6.117-1.605a11.847 11.847 0 005.933 1.57h.005c6.632 0 12.042-5.41 12.046-12.048a11.83 11.83 0 00-3.53-8.517"/></React.Fragment>
+                whatsapp: <React.Fragment><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .004 5.408 0 12.046c0 2.121.554 4.191 1.605 6.012L0 24l6.117-1.605a11.847 11.847 0 005.933 1.57h.005c6.632 0 12.042-5.41 12.046-12.048a11.83 11.83 0 00-3.53-8.517"/></React.Fragment>,
+                share: <React.Fragment><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></React.Fragment>,
+                external: <React.Fragment><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></React.Fragment>
             };
             const path = paths[name];
             if (!path) return null;
@@ -80,6 +80,7 @@
             const [selectedActivity, setSelectedActivity] = useState(null);
             const [loading, setLoading] = useState(false);
             const [submitStatus, setSubmitStatus] = useState(null);
+            const [imagePreviews, setImagePreviews] = useState([]); 
             const [formData, setFormData] = useState({ jenis: 'Laporan', namaAhli: '', tajukAktiviti: '', tarikh: '', lokasi: '', deskripsi: '', whatsapp: '', gambarData: [], passcode: '' });
 
             const formatDisplayDate = useCallback((dateStr) => {
@@ -88,38 +89,71 @@
                 return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' });
             }, []);
 
+            const processSingleDriveUrl = useCallback((url) => {
+                if (!url) return null;
+                const cleanUrl = url.trim();
+                if (cleanUrl.includes('drive.google.com')) {
+                    let fileId = '';
+                    if (cleanUrl.includes('/d/')) fileId = cleanUrl.split('/d/')[1].split('/')[0];
+                    else if (cleanUrl.includes('id=')) fileId = cleanUrl.split('id=')[1].split('&')[0];
+                    if (fileId) return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+                }
+                return cleanUrl;
+            }, []);
+
             const fetchActivities = async () => {
                 setFetching(true);
                 try {
-                    const res = await fetch(SCRIPT_URL);
-                    if (!res.ok) throw new Error('Network error');
-                    const data = await res.json();
+                    const response = await fetch(SCRIPT_URL);
+                    const data = await response.json();
                     if (Array.isArray(data)) {
-                        setActivities(data.sort((a, b) => new Date(b.tarikh).getTime() - new Date(a.tarikh).getTime()));
+                        setActivities(data.sort((a, b) => new Date(b.tarikh) - new Date(a.tarikh)));
                     }
                 } catch (e) { console.error(e); } finally { setFetching(false); }
             };
 
             useEffect(() => { fetchActivities(); }, []);
 
+            const handleFileChange = (e, targetJenis = 'Laporan') => {
+                const files = Array.from(e.target.files);
+                const maxFiles = targetJenis === 'Promosi' ? 1 : 5;
+                if (formData.gambarData.length + files.length > maxFiles) {
+                    alert(`Maksimum ${maxFiles} gambar dibenarkan.`);
+                    return;
+                }
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const base64 = reader.result.split(',')[1];
+                        setImagePreviews(prev => [...prev, reader.result]);
+                        setFormData(prev => ({ ...prev, gambarData: [...prev.gambarData, { base64, fileName: file.name }] }));
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+
             const handleSubmit = async (e, directData = null) => {
                 if (e) e.preventDefault();
                 const data = directData || formData;
                 if (data.passcode !== COMMUNITY_PASSCODE) { setSubmitStatus('wrong_passcode'); return; }
+                if (data.gambarData.length === 0) { alert("Sila muat naik sekurang-kurangnya satu gambar."); return; }
                 setLoading(true); setSubmitStatus('sending');
                 try {
                     await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data), mode: 'no-cors' });
                     setSubmitStatus('success');
                     setFormData({ jenis: 'Laporan', namaAhli: '', tajukAktiviti: '', tarikh: '', lokasi: '', deskripsi: '', whatsapp: '', gambarData: [], passcode: '' });
+                    setImagePreviews([]);
                     setTimeout(fetchActivities, 3000);
                 } catch (err) { setSubmitStatus('error'); } finally { setLoading(false); }
             };
 
             const pastActivities = useMemo(() => activities.filter(a => a.jenis === 'Laporan' || !a.jenis), [activities]);
             const upcomingPromos = useMemo(() => activities.filter(a => a.jenis === 'Promosi'), [activities]);
+            const uniqueMembers = useMemo(() => new Set(pastActivities.map(a => a.namaAhli)).size, [pastActivities]);
 
             return (
                 <div className="flex flex-col min-h-screen fade-in text-left">
+                    {/* NAVBAR */}
                     <nav className="bg-white sticky top-0 z-50 border-b border-teal-100 px-4 h-20 flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('feed')}>
                             <img src={LOGO_URL} className="w-12 h-12 object-contain" alt="Logo" />
@@ -130,7 +164,7 @@
                         </div>
                         <div className="hidden md:flex gap-2">
                             {['feed', 'share', 'admin'].map(v => (
-                                <button key={v} onClick={() => setView(v)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${view === v ? 'bg-teal-700 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}>
+                                <button key={v} onClick={() => setView(v)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${view === v ? 'bg-teal-700 text-white shadow-lg scale-105' : 'text-slate-400 hover:bg-slate-50'}`}>
                                     {v === 'feed' ? 'Inspirasi' : v === 'share' ? 'Kongsi' : 'Dashboard'}
                                 </button>
                             ))}
@@ -138,32 +172,47 @@
                         <button className="md:hidden p-2 text-teal-700" onClick={() => setIsMenuOpen(!isMenuOpen)}><Icon name={isMenuOpen ? "x" : "menu"} size={28}/></button>
                     </nav>
 
+                    {/* MOBILE MENU */}
+                    {isMenuOpen && (
+                        <div className="md:hidden bg-white border-b border-teal-50 p-6 flex flex-col gap-3">
+                            {['feed', 'share', 'admin'].map(v => (
+                                <button key={v} onClick={() => {setView(v); setIsMenuOpen(false);}} className={`px-5 py-4 rounded-xl text-left text-xs font-black uppercase tracking-widest ${view === v ? 'bg-teal-700 text-white' : 'text-slate-400'}`}>
+                                    {v === 'feed' ? 'Inspirasi' : v === 'share' ? 'Kongsi' : 'Dashboard'}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
                     <main className="max-w-6xl mx-auto w-full p-6 flex-grow">
+                        {/* HEADER */}
                         <div className="text-center mb-16 md:mb-24 py-10">
                             <h1 className="text-4xl md:text-7xl font-black text-slate-800 tracking-tighter mb-6 leading-tight">Portal Aktiviti Komuniti <br/><span className="text-teal-700 text-center">ISMA Subang Jaya</span></h1>
                             <p className="text-slate-500 max-w-2xl mx-auto text-base italic font-medium">"Merapatkan ukhuwah, mendokumentasikan khidmat bakti, dan memberi inspirasi kepada komuniti setempat."</p>
                         </div>
 
+                        {/* VIEW: FEED */}
                         {view === 'feed' && (
                             <div className="space-y-24">
                                 <section>
                                     <div className="flex justify-between items-center mb-10 border-b-4 border-teal-600/10 pb-4">
                                         <div className="flex flex-col text-left">
                                             <h2 className="text-xl md:text-2xl font-black text-slate-800 uppercase flex items-center gap-3"><Icon name="grid" className="text-teal-600" /> Papan Inspirasi</h2>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Aktiviti Terkini</span>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">8 Aktiviti Terkini Di Atas</span>
                                         </div>
-                                        <button onClick={fetchActivities} className="p-3 bg-white border border-slate-200 rounded-2xl text-teal-700 shadow-sm transition-colors"><Icon name="refresh" size={16} className={fetching ? "animate-spin" : ""} /></button>
+                                        <button onClick={fetchActivities} className="p-3 bg-white border border-slate-200 rounded-2xl text-teal-700 hover:bg-teal-50 shadow-sm transition-colors">
+                                            <Icon name="refresh" size={16} className={fetching ? "animate-spin" : ""} />
+                                        </button>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                                         {pastActivities.slice(0, 8).map((act, i) => (
                                             <div key={i} onClick={() => setSelectedActivity(act)} className="bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all cursor-pointer group text-left">
                                                 <div className="h-48 relative overflow-hidden bg-slate-50">
-                                                    <img src={act.gambarUrl?.split(',')[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="" />
+                                                    <img src={processSingleDriveUrl(act.gambarUrl?.split(',')[0])} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="" />
                                                     <div className="absolute bottom-3 right-3 bg-teal-700/90 backdrop-blur-md text-white px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg leading-none">
                                                         <Icon name="calendar" size={10}/> {formatDisplayDate(act.tarikh)}
                                                     </div>
                                                 </div>
-                                                <div className="p-6 text-left">
+                                                <div className="p-6">
                                                     <h3 className="text-sm font-black text-slate-800 mb-2 leading-tight group-hover:text-teal-700 transition-colors line-clamp-2 uppercase leading-none">{act.tajukAktiviti}</h3>
                                                     <p className="text-slate-500 text-[10px] italic line-clamp-2 font-medium">"{act.deskripsi}"</p>
                                                 </div>
@@ -171,27 +220,68 @@
                                         ))}
                                     </div>
                                 </section>
+
+                                <section className="bg-teal-900/5 -mx-4 px-4 py-20 rounded-[3rem] md:rounded-[6rem] text-center">
+                                    <h2 className="text-3xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter mb-16 leading-none">Aktiviti Akan Datang</h2>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-5xl mx-auto px-2 text-left">
+                                        {upcomingPromos.slice(0, 5).map((promo, i) => (
+                                            <div key={i} className="bg-white p-8 md:p-10 rounded-[3.5rem] shadow-xl border border-teal-50 flex flex-col md:flex-row gap-8 items-center text-left">
+                                                <div className="flex-1 space-y-5">
+                                                    <div className="flex items-center gap-2 text-[10px] font-black text-teal-600 uppercase tracking-widest leading-none"><Icon name="calendar" size={14}/> {formatDisplayDate(promo.tarikh)}</div>
+                                                    <h3 className="text-2xl font-black text-slate-800 leading-tight uppercase text-left leading-none">{promo.tajukAktiviti}</h3>
+                                                    <p className="text-slate-500 text-sm leading-relaxed line-clamp-3 font-medium italic">"{promo.deskripsi}"</p>
+                                                    <div className="flex gap-3 pt-4">
+                                                        {promo.whatsapp && <a href={`https://wa.me/${promo.whatsapp}`} target="_blank" className="flex-1 bg-green-600 text-white p-4 rounded-xl flex items-center justify-center gap-2 font-black text-xs uppercase shadow-md leading-none"><Icon name="whatsapp" size={18}/> WhatsApp</a>}
+                                                        <button onClick={() => setSelectedActivity(promo)} className="p-4 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors"><Icon name="info" size={18}/></button>
+                                                    </div>
+                                                </div>
+                                                {promo.gambarUrl && <div className="shrink-0 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 shadow-inner"><img src={processSingleDriveUrl(promo.gambarUrl)} className="w-24 h-24 md:w-32 md:h-32 object-contain" /><span className="text-[8px] font-black text-slate-400 uppercase mt-2 block text-center leading-none">Scan Maklumat</span></div>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
                             </div>
                         )}
 
+                        {/* VIEW: SHARE */}
                         {view === 'share' && (
-                            <div className="max-w-2xl mx-auto py-10 animate-in slide-in-from-bottom text-left">
+                            <div className="max-w-2xl mx-auto space-y-10 animate-in slide-in-from-bottom text-left">
                                 <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-teal-50">
                                     <div className="bg-teal-700 p-10 text-white text-center">
-                                        <h2 className="text-2xl font-black uppercase tracking-tight text-white leading-none">Hantar Laporan</h2>
+                                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white leading-none">Hantar Laporan</h2>
                                     </div>
                                     <form onSubmit={(e) => handleSubmit(e, {...formData, jenis: 'Laporan'})} className="p-8 md:p-12 space-y-6">
                                         {submitStatus === 'success' && <div className="bg-teal-50 text-teal-800 p-5 rounded-2xl flex items-center gap-4"><Icon name="check" className="text-teal-600" /> <span className="text-xs font-black uppercase tracking-widest leading-none">Berjaya Dihantar!</span></div>}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <input name="namaAhli" required value={formData.namaAhli} onChange={(e) => setFormData({...formData, namaAhli: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl outline-none" placeholder="Nama Anda" />
-                                            <input type="date" name="tarikh" required value={formData.tarikh} onChange={(e) => setFormData({...formData, tarikh: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl" />
+                                            <input name="namaAhli" required value={formData.namaAhli} onChange={(e) => setFormData({...formData, namaAhli: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Nama Anda" />
+                                            <input type="date" name="tarikh" required value={formData.tarikh} onChange={(e) => setFormData({...formData, tarikh: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" />
                                         </div>
-                                        <input name="tajukAktiviti" required value={formData.tajukAktiviti} onChange={(e) => setFormData({...formData, tajukAktiviti: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl outline-none" placeholder="Tajuk Aktiviti" />
-                                        <textarea name="deskripsi" required rows="4" value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl outline-none" placeholder="Ringkasan..."></textarea>
-                                        <div className="p-6 bg-teal-50 rounded-2xl border border-teal-100">
-                                            <input type="password" required value={formData.passcode} onChange={(e) => setFormData({...formData, passcode: e.target.value})} className="w-full p-4 bg-white rounded-xl text-center font-black" placeholder="KOD KOMUNITI" />
+                                        <input name="tajukAktiviti" required value={formData.tajukAktiviti} onChange={(e) => setFormData({...formData, tajukAktiviti: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Tajuk Aktiviti" />
+                                        <textarea name="deskripsi" required rows="4" value={formData.deskripsi} onChange={(e) => setFormData({...formData, deskripsi: e.target.value})} className="w-full p-4 bg-slate-50 rounded-xl border-none text-sm font-bold shadow-sm outline-none" placeholder="Ringkasan..."></textarea>
+                                        <div className="space-y-4">
+                                            <div className="flex flex-wrap gap-2">
+                                                {imagePreviews.map((src, i) => (
+                                                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-white shadow-md">
+                                                        <img src={src} className="w-full h-full object-cover" />
+                                                        <button type="button" onClick={() => {
+                                                            setImagePreviews(p => p.filter((_, idx) => idx !== i));
+                                                            setFormData(p => ({...p, gambarData: p.gambarData.filter((_, idx) => idx !== i)}));
+                                                        }} className="absolute top-1 right-1 p-0.5 bg-rose-500 text-white rounded"><Icon name="x" size={10}/></button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {imagePreviews.length < 5 && (
+                                                <div className="relative border-2 border-dashed border-teal-100 rounded-[2.5rem] p-10 text-center bg-slate-50 hover:bg-teal-50 cursor-pointer transition-colors">
+                                                    <input type="file" accept="image/*" multiple onChange={(e) => handleFileChange(e, 'Laporan')} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                                    <Icon name="upload" className="mx-auto mb-2 text-teal-600" size={24} />
+                                                    <span className="text-[10px] font-black uppercase text-slate-400 leading-none">Tambah Gambar ({imagePreviews.length}/5)</span>
+                                                </div>
+                                            )}
                                         </div>
-                                        <button disabled={loading} className="w-full bg-teal-700 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl">
+                                        <div className="p-6 bg-teal-50 rounded-2xl border border-teal-100 text-left">
+                                            <input type="password" required value={formData.passcode} onChange={(e) => setFormData({...formData, passcode: e.target.value})} className="w-full p-4 bg-white rounded-xl text-center font-black outline-none border-none shadow-inner" placeholder="KOD RAHSIA" />
+                                        </div>
+                                        <button disabled={loading} className="w-full bg-teal-700 text-white py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest shadow-xl leading-none">
                                             {loading ? "Menghantar..." : "Hantar Laporan"}
                                         </button>
                                     </form>
@@ -200,35 +290,35 @@
                         )}
 
                         {view === 'admin' && (
-                            <div className="space-y-12 py-10 text-left animate-in slide-in-from-bottom">
+                            <div className="space-y-12 py-10 text-left">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                                    <div className="bg-white p-8 rounded-[2.5rem] border flex items-center gap-6 shadow-sm">
+                                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm">
                                         <Icon name="chart" size={32} className="text-teal-600"/>
                                         <div className="text-left leading-none">
                                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none text-left">Jumlah Aktiviti</p>
                                             <p className="text-4xl font-black text-slate-800 leading-none text-left">{pastActivities.length}</p>
                                         </div>
                                     </div>
-                                    <div className="bg-white p-8 rounded-[2.5rem] border flex items-center gap-6 shadow-sm">
+                                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 flex items-center gap-6 shadow-sm">
                                         <Icon name="users" size={32} className="text-blue-600"/>
                                         <div className="text-left leading-none">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none text-left">Ahli Berdaftar</p>
-                                            <p className="text-4xl font-black text-slate-800 leading-none text-left">{new Set(pastActivities.map(a => a.namaAhli)).size}</p>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none text-left">Ahli Melapor</p>
+                                            <p className="text-4xl font-black text-slate-800 leading-none text-left">{uniqueMembers}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white rounded-[2.5rem] border overflow-hidden max-w-5xl mx-auto shadow-sm">
-                                    <div className="overflow-x-auto">
+                                <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden max-w-5xl mx-auto shadow-sm">
+                                    <div className="overflow-x-auto text-left">
                                         <table className="w-full text-left">
-                                            <thead className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">
-                                                <tr><th className="p-6">Tarikh</th><th className="p-6">Tajuk</th><th className="p-6 text-center">Status</th></tr>
+                                            <thead className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none text-left">
+                                                <tr><th className="p-6 text-left">Tarikh</th><th className="p-6 text-left">Tajuk Aktiviti</th><th className="p-6 text-center">Status</th></tr>
                                             </thead>
-                                            <tbody className="divide-y text-sm">
+                                            <tbody className="divide-y text-sm text-left">
                                                 {activities.map((act, idx) => (
                                                     <tr key={idx} className="hover:bg-teal-50/20 text-left transition-colors">
-                                                        <td className="p-6 text-slate-400 font-bold whitespace-nowrap">{formatDisplayDate(act.tarikh)}</td>
-                                                        <td className="p-6 text-slate-600 font-medium uppercase">{act.tajukAktiviti}</td>
-                                                        <td className="p-6 text-center leading-none"><span className="bg-teal-50 text-teal-700 text-[9px] font-black px-3 py-1 rounded-full border border-teal-100 uppercase leading-none">DIARKIB</span></td>
+                                                        <td className="p-6 text-slate-400 font-bold whitespace-nowrap text-left">{formatDisplayDate(act.tarikh)}</td>
+                                                        <td className="p-6 text-slate-600 font-medium uppercase text-left">{act.tajukAktiviti}</td>
+                                                        <td className="p-6 text-center leading-none"><span className="bg-teal-50 text-teal-700 text-[9px] font-black px-3 py-1 rounded-full border border-teal-100 uppercase">DIARKIB</span></td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -239,21 +329,38 @@
                         )}
                     </main>
 
+                    {/* FOOTER */}
                     <footer className="bg-slate-900 py-24 border-t border-slate-800 text-center text-white mt-auto">
                         <div className="max-w-6xl mx-auto px-4 text-center">
-                            <p className="text-white font-black text-2xl uppercase tracking-tighter mb-2 text-center leading-none">ISMA Subang Jaya</p>
+                            <Icon name="users" className="text-teal-400 mx-auto mb-10" size={40}/>
+                            <div className="mb-12 max-w-2xl mx-auto text-center">
+                                <h3 className="text-white font-black text-xl uppercase tracking-tighter mb-4 text-center leading-none">Sertai Keluarga ISMA Subang Jaya</h3>
+                                <p className="text-slate-400 text-sm md:text-base mb-8 font-medium text-center">Daftar sebagai ahli dan berpeluang mendapat diskaun program serta aktiviti akan datang.</p>
+                                <a href="https://ahli.isma.my" target="_blank" className="inline-flex items-center gap-3 bg-teal-600 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-teal-500 shadow-xl group leading-none text-center"><Icon name="userPlus" size={18} /> Daftar di ahli.isma.my <Icon name="external" size={14} className="opacity-50" /></a>
+                            </div>
+                            <p className="text-white font-black text-2xl uppercase tracking-tighter mb-2 mt-14 text-center">ISMA Subang Jaya</p>
                             <p className="text-[10px] uppercase tracking-[0.6em] text-slate-500 font-black text-center leading-none">Membangun Ummah, Memperkukuh Komuniti</p>
+                            <p className="text-[11px] text-slate-600 font-black tracking-[0.3em] uppercase mt-10 opacity-50 text-center">© 2026 Portal Komuniti Cawangan Subang Jaya</p>
                         </div>
                     </footer>
 
+                    {/* MODAL DETAIL */}
                     {selectedActivity && (
                         <div className="fixed inset-0 z-[300] bg-black/90 flex items-center justify-center p-4" onClick={() => setSelectedActivity(null)}>
-                            <div className="bg-white rounded-[2rem] max-w-lg w-full overflow-hidden flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-                                <img src={selectedActivity.gambarUrl?.split(',')[0]} className="w-full h-64 object-cover" alt="Detail" />
-                                <div className="p-8 text-left">
-                                    <h2 className="text-2xl font-black leading-tight text-slate-800 mb-4 uppercase text-left leading-none">{selectedActivity.tajukAktiviti}</h2>
-                                    <p className="text-slate-600 text-sm italic mb-8 text-left leading-relaxed">"{selectedActivity.deskripsi}"</p>
-                                    <button onClick={() => setSelectedActivity(null)} className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-xs leading-none transition-all">Tutup</button>
+                            <div className="bg-white rounded-[2rem] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+                                <div className="md:w-1/2 h-64 md:h-auto bg-slate-100 relative">
+                                    <div className="flex h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+                                        {(selectedActivity.gambarUrl || "").split(',').map((url, i) => (
+                                            <img key={i} src={processSingleDriveUrl(url)} className="min-w-full h-full object-cover snap-center" alt="" />
+                                        ))}
+                                    </div>
+                                    <button onClick={() => setSelectedActivity(null)} className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"><Icon name="x" size={20}/></button>
+                                </div>
+                                <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto text-left flex flex-col text-left">
+                                    <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-lg mb-4 inline-block w-max bg-teal-50 text-teal-700">Inspirasi Komuniti</span>
+                                    <h2 className="text-2xl font-black leading-tight text-slate-800 mb-6 text-left leading-none uppercase">{selectedActivity.tajukAktiviti}</h2>
+                                    <div className="flex-grow bg-slate-50 p-6 rounded-2xl mb-8"><p className="text-slate-600 text-sm italic font-medium text-left italic leading-relaxed">"{selectedActivity.deskripsi}"</p></div>
+                                    <button onClick={() => setSelectedActivity(null)} className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest leading-none">Tutup</button>
                                 </div>
                             </div>
                         </div>
@@ -262,10 +369,18 @@
             );
         }
 
-        const rootNode = document.getElementById('root');
-        if (rootNode) {
-            const root = ReactDOM.createRoot(rootNode);
-            root.render(<App />);
+        const startApp = () => {
+            const rootNode = document.getElementById('root');
+            if (rootNode) {
+                const root = ReactDOM.createRoot(rootNode);
+                root.render(<App />);
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp);
+        } else {
+            startApp();
         }
     </script>
 </body>
